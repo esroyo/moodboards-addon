@@ -1,0 +1,13 @@
+{
+  "title": "Moodboard Addon",
+  "name": "moodboard",
+  "version": "0.0.1",
+  "description": "A moodboard addon",
+  "main": "index.js",
+  "author": "Carles Escrig Royo",
+  "engines": {
+    "firefox": ">=36.0",
+    "fennec": ">=36.0"
+  },
+  "license": "MIT"
+}

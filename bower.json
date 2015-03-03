@@ -1,0 +1,23 @@
+{
+  "name": "moodboard",
+  "main": "index.js",
+  "version": "0.0.0",
+  "authors": [
+    "Carles Escrig Royo <esroyo@gmail.com>"
+  ],
+  "description": "Add-on",
+  "license": "GPL",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "data/vendor",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fabric": "~1.4.13",
+    "foundation": "zurb/bower-foundation#~5.5.1"
+  }
+}

@@ -1,0 +1,35 @@
+.icon-bar {
+
+    .item {
+        padding: 0.5rem;
+    }
+
+    > .f-dropdown {
+        padding: 0;
+    }
+
+    > * i + label,
+    > * img + label {
+        display: none;
+    }
+
+    > * i {
+        font-size: 1.2rem;
+    }
+} // .icon-bar
+
+// Medium screens
+@media only screen and (min-width: 40.063em) {
+
+.icon-bar {
+    &.medium-vertical {
+        width: 100%;
+    }
+    > .f-dropdown {
+        min-width: 300%;
+        max-width: 600%;
+        width: auto;
+    }
+}
+
+} /* min-width 641px, medium screens */

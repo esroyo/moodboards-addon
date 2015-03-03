@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8>
+    <title>My moodboards</title>
+    <link href=lib/foundation/css/normalize.css rel=stylesheet>
+    <link href=lib/foundation/css/foundation.css rel=stylesheet>
+    <link href=assets/css/fontello.css rel=stylesheet>
+    <link href=assets/css/main.css rel=stylesheet>
+    <!-- http://realfavicongenerator.net -->
+    <link rel="apple-touch-icon" sizes="57x57" href="assets/img/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="assets/img/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/img/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="assets/img/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="assets/img/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="assets/img/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/img/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="assets/img/favicon-194x194.png" sizes="194x194">
+    <link rel="icon" type="image/png" href="assets/img/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="assets/img/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="assets/img/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="assets/img/manifest.json">
+    <link rel="shortcut icon" href="assets/img/favicon.ico">
+    <meta name="msapplication-TileColor" content="#b91d47">
+    <meta name="msapplication-TileImage" content="assets/img/mstile-144x144.png">
+    <meta name="msapplication-config" content="assets/img/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <!-- http://realfavicongenerator.net -->
+</head>
+<body class="moodboards no-board">
+
+<div class="sidebar">
+<aside class="icon-bar medium-vertical large-vertical two-up">
+
+<a class="item" data-dropdown="moodboards-list" data-options="align:right" title="Open a moodboard"> <i class="icon-folder"></i> <label>Home</label> </a>
+<a class="item needs-board" data-reveal-id="export" title="Export this moodboard"> <i class="icon-export"></i> <label>Export</label> </a>
+<a class="item needs-board" data-reveal-id="options" title="Options for this moodboard"> <i class="icon-sliders"></i> <label>Configuration</label> </a>
+
+<ul id="moodboards-list" class="f-dropdown" data-dropdown-content>
+<li><a>No moodboards</a></li>
+</ul>
+
+</aside>
+
+</div>
+
+<div class="row small-collapse main">
+    <div class="columns">
+        <canvas id="board"></canvas>
+    </div>
+</div>
+
+<div id="options" class="reveal-modal" data-reveal>
+<h2>Moodboard options</h2>
+<form>
+  <div class="row">
+    <div class="small-3 columns">
+        <label for="name" class="right inline">Name</label>
+    </div>
+    <div class="small-9 columns">
+        <input type="text" id="name" name="name">
+    </div>
+  </div>
+    <div class="row">
+        <div class="small-3 columns">
+            <label for="background" class="right inline">Background</label>
+        </div>
+        <div class="small-6 medium-3 columns end">
+            <input type="color" id="background" name="background">
+        </div>
+    </div>
+    <hr />
+    <div class="row collapse">
+        <div class="columns">
+            <a id="remove" href="#" class="button left alert" role="button"><i class="icon-trash"></i> Delete</a>
+            <a id="save" href="#" class="button right" role="button"><i class="icon-floppy"></i> Save</a>
+        </div>
+    </div>
+</form>
+<a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="export" class="reveal-modal" data-reveal>
+<h2>Export options</h2>
+<form>
+    <div class="row">
+        <div class="medium-4 columns">
+            <label>Format
+            <select name="format" id="format">
+                <option value="png" selected>png</option>
+                <option value="jpeg">jpeg</option>
+            </select>
+            </label>
+        </div>
+        <div class="medium-4 columns">
+            <label>Quality
+            <input name="quality" id="quality" type="number" min="0" max="1" step="0.01" value="1" disabled>
+            </label>
+        </div>
+        <div class="small-4 columns">
+            <label>Multiplier
+            <input name="multiplier" id="multiplier" type="number" min="1" max="5" step="1" value="1">
+            </label>
+        </div>
+    </div>
+    <div class="row">
+    <fieldset>
+        <legend>Offset</legend>
+        <div class="row">
+            <div class="medium-6 columns">
+            <label>Left offset
+                <input name="left" id="left" type="number" min="0" step="1" placeholder="0">
+            </label>
+            </div>
+            <div class="medium-6 columns">
+            <label>Top offset
+                <input name="top" id="top" type="number" min="0" step="1" placeholder="0">
+            </label>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Cropping</legend>
+        <div class="row">
+            <div class="medium-6 columns">
+            <label>Width
+                <input name="width" id="width" type="number" min="1" step="1">
+            </label>
+            </div>
+            <div class="medium-6 columns">
+            <label>Height
+                <input name="height" id="height" type="number" min="1" step="1">
+            </label>
+            </div>
+        </div>
+    </fieldset>
+    </div>
+    <div class="row">
+        <div class="columns">
+            <a id="do-export" href="#" class="button right success" role="button"><i class="icon-export"></i> Export</a>
+        </div>
+    </div>
+</form>
+<a class="close-reveal-modal">&#215;</a>
+</div>
+
+
+</body>
+</html>
