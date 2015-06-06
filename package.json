@@ -6,8 +6,10 @@
   "main": "index.js",
   "author": "Carles Escrig Royo",
   "engines": {
-    "firefox": ">=36.0",
-    "fennec": ">=36.0"
+    "firefox": ">=38.0",
+    "fennec": ">=38.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+  }
 }

@@ -12,6 +12,7 @@ var buttons = require('sdk/ui/button/toggle');
 var tabs = require('sdk/tabs');
 var cm = require('sdk/context-menu');
 var ss = require('sdk/simple-storage');
+let { Cc, Ci, Cu } = require('chrome');
 
 var _button, _cmenu,
     _tab, _worker,
@@ -120,7 +121,38 @@ function createNewTab() {
                 }
             });
             _worker.port.on('board:export', function(data) {
-                tabs.open(data);
+                //tabs.open(data);
+                var type = data.split(',')[0].split(':')[1].split(';')[0].split('/')[1];
+                var utils = require('sdk/window/utils');
+                var active = utils.getMostRecentBrowserWindow();
+
+                const nsIFilePicker = Ci.nsIFilePicker;
+
+                var fp = Cc["@mozilla.org/filepicker;1"]
+                               .createInstance(nsIFilePicker);
+                fp.init(active, "Save as image", nsIFilePicker.modeSave);
+                fp.appendFilter("Image", "*." + type);
+
+                var rv = fp.show();
+                if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
+                      var file = fp.file;
+                        // Get the path as string. Note that you usually won't 
+                        // need to work with the string paths.
+                        var path = fp.file.path;
+
+                        var parts = path.split('.');
+                        if (parts[parts.length - 1] !== type)
+                            path = path + '.' + type;
+
+                        Cu.import("resource://gre/modules/Downloads.jsm");
+                        Cu.import("resource://gre/modules/osfile.jsm");
+                        Cu.import("resource://gre/modules/Task.jsm");
+
+                        Task.spawn(function () {
+                              yield Downloads.fetch(data, path);
+                        }).then(null, Cu.reportError);
+
+                }
             });
             _worker.port.on('board:delete', function(options) {
                 if (ss.storage.currentBoard !== undefined) {

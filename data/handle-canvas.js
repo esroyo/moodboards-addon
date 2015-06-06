@@ -91,7 +91,7 @@ jQuery(document).ready(function($) {
     });
 
     self.port.on('picture:add', function(pic) {
-        fabric.Image.fromURL(pic.src, function(img) {
+        fabric.Image.fromURL('http://crossorigin.me/' + pic.src, function(img) {
             canvas.add(img);
         }, {crossOrigin:'anonymous'});
     });
