@@ -7,12 +7,42 @@
 //}
 
 //exports.dummy = dummy;
-
+var Request = require("sdk/request").Request;
 var buttons = require('sdk/ui/button/toggle');
 var tabs = require('sdk/tabs');
 var cm = require('sdk/context-menu');
 var ss = require('sdk/simple-storage');
 let { Cc, Ci, Cu } = require('chrome');
+
+var { startServerAsync } = require("addon-httpd");
+var srv = startServerAsync(1338, '/home/simkin/');
+require("sdk/system/unload").when(function cleanup() {
+      srv.stop(function() {})
+});
+
+srv.registerPrefixHandler('/proxy/', function(request, response)
+{
+  response.processAsync();
+  Request({
+      url: request._path.slice(7),
+      overrideMimeType: "text/plain; charset=x-user-defined",
+      onComplete: function (res) {
+          response.setStatusLine(request.httpVersion, res.status, res.statusText);
+          response.setHeader('Access-Control-Allow-Origin', '*');
+          response.setHeader('Access-Control-Allow-Credentials', 'false');
+          response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+          if (res.status == 200) {
+              ['Content-Type', 'Content-Length'].forEach(function(v) {
+                  response.setHeader(v, res.headers[v]);
+           });
+
+            response.write(res.text);
+          }
+        response.finish();
+    }
+  }).get();
+}
+);
 
 var _button, _cmenu,
     _tab, _worker,
