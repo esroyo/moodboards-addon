@@ -11,5 +11,6 @@
   },
   "license": "MIT",
   "dependencies": {
+    "addon-httpd": "0.0.3"
   }
 }
