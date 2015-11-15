@@ -1,5 +1,6 @@
 jQuery(document).ready(function($) {
-
+    //var crossOriginService = 'http://crossorigin.me/';
+    var crossOriginService = 'http://localhost:1338/proxy/';
     var $body = $('body');
 
     if (!$body.hasClass('moodboards'))
@@ -91,7 +92,7 @@ jQuery(document).ready(function($) {
     });
 
     self.port.on('picture:add', function(pic) {
-        fabric.Image.fromURL('http://crossorigin.me/' + pic.src, function(img) {
+        fabric.Image.fromURL(crossOriginService + pic.src, function(img) {
             canvas.add(img);
         }, {crossOrigin:'anonymous'});
     });

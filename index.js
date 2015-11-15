@@ -15,7 +15,9 @@ var ss = require('sdk/simple-storage');
 let { Cc, Ci, Cu } = require('chrome');
 
 var { startServerAsync } = require("addon-httpd");
-var srv = startServerAsync(1338, '/home/simkin/');
+var basePath = require('sdk/system').pathFor('TmpD');
+var port = 1338;
+var srv = startServerAsync(port, basePath);
 require("sdk/system/unload").when(function cleanup() {
       srv.stop(function() {})
 });
@@ -249,9 +251,10 @@ _cmenu = cm.Menu({
     }
 });
 
+/* the button for the Firefox toolbar */
 _button = buttons.ToggleButton({
-    id: 'saria-moodboard',
-    label: 'Moodboards',
+    id: 'moodboards-addon',
+    label: 'Quick moodboards',
     icon: {
         16:'./assets/img/moodboard-16.png',
         32:'./assets/img/moodboard-32.png',
@@ -280,4 +283,3 @@ _button = buttons.ToggleButton({
 /* init add-on */
 ss.storage.boards = ss.storage.boards || [];
 buildMenu();
-

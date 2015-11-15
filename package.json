@@ -1,8 +1,8 @@
 {
-  "title": "Moodboards addon",
+  "title": "Quick moodboards addon",
   "name": "moodboards-addon",
-  "version": "0.0.1",
-  "description": "A simple moodboards Firefox addon",
+  "version": "0.0.3",
+  "description": "Quick moodboards Firefox add-on",
   "main": "index.js",
   "author": "Carles Escrig Royo",
   "engines": {
