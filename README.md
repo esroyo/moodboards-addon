@@ -3,12 +3,19 @@ Make moodboards quickly by collecting images through the Firefox contextual menu
 
 **This is alpha software, please don't use it as a production tool.**
 
-The addon adds new icon in the toolbar which gives acces to the Moodboards tab. To add images to a moodboard, you'll find an option in the right click contextual menu of images (similar to "Save image as...") called "Add Image to moodboard". You can create new moodboards from that same menu.
+## Usage
+The addon adds new icon in the toolbar which gives acces to the Moodboards tab.
 
-## Test in your browser
-Install the provided XPI in your Firefox, [just click here](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.0.3.xpi).
+To add images to a moodboard, you'll find an option in the right click contextual menu (similar to "Save image as...") called "Add Image to moodboard". Please note that currently only images from an `img` tag can can be pinned (not backgrounds). To be able to pin, you should also see the "Save image as..." option in the menu.
 
-## Test from the source
+The creation of moodboards is handled from that same contextual menu.
+
+The moodboard editor is quite limited, just click an image to bring it to the front and press `delete` key while it is selected to remove it.
+
+## Install
+* [Firefox extension package](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.1.0-fx.xpi)
+
+## Build from source
 Requires: `bower`, `npm` and `jpm`.
 
 1. `git clone --depth 1 https://github.com/esroyo/moodboards-addon.git`
@@ -17,4 +24,5 @@ Requires: `bower`, `npm` and `jpm`.
 3. `npm install`
 4. `jpm run` or `jpm run -b /path/to/your/firefox`
 
-See also: [Getting started with JPM](https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Getting_Started_%28jpm%29)
+## Resources
+* [Getting started with JPM](https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Getting_Started_%28jpm%29)

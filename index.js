@@ -7,45 +7,13 @@
 //}
 
 //exports.dummy = dummy;
-var Request = require("sdk/request").Request;
-var buttons = require('sdk/ui/button/toggle');
-var tabs = require('sdk/tabs');
-var cm = require('sdk/context-menu');
-var ss = require('sdk/simple-storage');
-let { Cc, Ci, Cu } = require('chrome');
+const buttons = require('sdk/ui/button/toggle');
+const tabs = require('sdk/tabs');
+const cm = require('sdk/context-menu');
+const ss = require('sdk/simple-storage');
+const { Cc, Ci, Cu } = require('chrome');
 
-var { startServerAsync } = require("addon-httpd");
-var basePath = require('sdk/system').pathFor('TmpD');
-var port = 1338;
-var srv = startServerAsync(port, basePath);
-require("sdk/system/unload").when(function cleanup() {
-      srv.stop(function() {})
-});
-
-srv.registerPrefixHandler('/proxy/', function(request, response)
-{
-  response.processAsync();
-  Request({
-      url: request._path.slice(7),
-      overrideMimeType: "text/plain; charset=x-user-defined",
-      onComplete: function (res) {
-          response.setStatusLine(request.httpVersion, res.status, res.statusText);
-          response.setHeader('Access-Control-Allow-Origin', '*');
-          response.setHeader('Access-Control-Allow-Credentials', 'false');
-          response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-          if (res.status == 200) {
-              ['Content-Type', 'Content-Length'].forEach(function(v) {
-                  response.setHeader(v, res.headers[v]);
-           });
-
-            response.write(res.text);
-          }
-        response.finish();
-    }
-  }).get();
-}
-);
-
+require('proxy-server');
 var _button, _cmenu,
     _tab, _worker,
     _locked = false;
@@ -114,104 +82,112 @@ function updateListOnTab() {
     }
 }
 
+function onOpen(tab) {
+    _tab = tab;
+    _tab.title = defaultTitle;
+}
+
+function onReady(tab) {
+    _worker = tab.attach({
+        contentScriptFile: [
+            './lib/foundation/js/vendor/jquery.js',
+            './lib/foundation/js/foundation.min.js',
+            './lib/fabric/dist/fabric.min.js',
+            './handle-canvas.js'
+        ]
+    });
+
+    /* tab event */
+    _worker.port.on('board:load', loadBoard);
+
+    _worker.port.on('board:store', function(json) {
+        if (ss.storage.currentBoard !== undefined) {
+            console.log('The canvas changed! STORE!');
+            ss.storage.boards[ss.storage.currentBoard].json = json;
+        }
+    });
+    _worker.port.on('board:save', function(options) {
+        if (ss.storage.currentBoard !== undefined) {
+            console.log('The moodboard options changed! SAVE!');
+            if (options.name) {
+                ss.storage.boards[ss.storage.currentBoard].name = options.name;
+                updateListOnTab();
+                buildMenu();
+                _tab.title = 'Moodboard: ' + options.name;
+            }
+        }
+    });
+    _worker.port.on('board:export', function(data) {
+        //tabs.open(data);
+        var type = data.split(',')[0].split(':')[1].split(';')[0].split('/')[1];
+        var utils = require('sdk/window/utils');
+        var active = utils.getMostRecentBrowserWindow();
+
+        const nsIFilePicker = Ci.nsIFilePicker;
+
+        var fp = Cc["@mozilla.org/filepicker;1"]
+            .createInstance(nsIFilePicker);
+        fp.init(active, "Save as image", nsIFilePicker.modeSave);
+        fp.appendFilter("Image", "*." + type);
+
+        var rv = fp.show();
+        if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
+            var file = fp.file;
+            // Get the path as string. Note that you usually won't 
+            // need to work with the string paths.
+            var path = fp.file.path;
+
+            var parts = path.split('.');
+            if (parts[parts.length - 1] !== type)
+                path = path + '.' + type;
+
+            Cu.import("resource://gre/modules/Downloads.jsm");
+            Cu.import("resource://gre/modules/osfile.jsm");
+            Cu.import("resource://gre/modules/Task.jsm");
+
+            Task.spawn(function () {
+                yield Downloads.fetch(data, path);
+            }).then(null, Cu.reportError);
+
+        }
+    });
+
+    _worker.port.on('board:delete', function(options) {
+        if (ss.storage.currentBoard !== undefined) {
+            var idx = ss.storage.currentBoard;
+            ss.storage.currentBoard = undefined;
+            console.log('Oh my good! You have deleted moodboard with idx '+idx+'!');
+            ss.storage.boards.splice(idx, 1);
+            updateListOnTab();
+            buildMenu();
+            _tab.title = defaultTitle;
+        }
+    });
+}
+
+function onLoad(tab) {
+    /* init tab */
+    updateListOnTab();
+
+    if (ss.storage.currentBoard !== undefined) {
+        loadBoard(ss.storage.currentBoard);
+    }
+    /* init tab end */
+}
+
+function onClose(tab) {
+    _button.checked = false;
+    _tab = _worker = undefined;
+}
+
 function createNewTab() {
     tabs.open({
         url: './index.html',
         isPinned: true,
-        onOpen: function onOpen(tab) {
-            _tab = tab;
-            _tab.title = defaultTitle;
-        },
-        onReady: function onReady(tab) {
-            _worker = tab.attach({
-                contentScriptFile: [
-                    './lib/foundation/js/vendor/jquery.js',
-                    './lib/foundation/js/foundation.min.js',
-                    './lib/fabric/dist/fabric.min.js',
-                    './handle-canvas.js'
-                ]
-            });
-
-            /* tab event */
-            _worker.port.on('board:load', loadBoard);
-
-            _worker.port.on('board:store', function(json) {
-                if (ss.storage.currentBoard !== undefined) {
-                    console.log('The canvas changed! STORE!');
-                    ss.storage.boards[ss.storage.currentBoard].json = json;
-                }
-            });
-            _worker.port.on('board:save', function(options) {
-                if (ss.storage.currentBoard !== undefined) {
-                    console.log('The moodboard options changed! SAVE!');
-                    if (options.name) {
-                        ss.storage.boards[ss.storage.currentBoard].name = options.name;
-                        updateListOnTab();
-                        buildMenu();
-                        _tab.title = 'Moodboard: ' + options.name;
-                    }
-                }
-            });
-            _worker.port.on('board:export', function(data) {
-                //tabs.open(data);
-                var type = data.split(',')[0].split(':')[1].split(';')[0].split('/')[1];
-                var utils = require('sdk/window/utils');
-                var active = utils.getMostRecentBrowserWindow();
-
-                const nsIFilePicker = Ci.nsIFilePicker;
-
-                var fp = Cc["@mozilla.org/filepicker;1"]
-                               .createInstance(nsIFilePicker);
-                fp.init(active, "Save as image", nsIFilePicker.modeSave);
-                fp.appendFilter("Image", "*." + type);
-
-                var rv = fp.show();
-                if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
-                      var file = fp.file;
-                        // Get the path as string. Note that you usually won't 
-                        // need to work with the string paths.
-                        var path = fp.file.path;
-
-                        var parts = path.split('.');
-                        if (parts[parts.length - 1] !== type)
-                            path = path + '.' + type;
-
-                        Cu.import("resource://gre/modules/Downloads.jsm");
-                        Cu.import("resource://gre/modules/osfile.jsm");
-                        Cu.import("resource://gre/modules/Task.jsm");
-
-                        Task.spawn(function () {
-                              yield Downloads.fetch(data, path);
-                        }).then(null, Cu.reportError);
-
-                }
-            });
-            _worker.port.on('board:delete', function(options) {
-                if (ss.storage.currentBoard !== undefined) {
-                    var idx = ss.storage.currentBoard;
-                    ss.storage.currentBoard = undefined;
-                    console.log('Oh my good! You have deleted moodboard with idx '+idx+'!');
-                    ss.storage.boards.splice(idx, 1);
-                    updateListOnTab();
-                    buildMenu();
-                    _tab.title = defaultTitle;
-                }
-            });
-            /* tab events end */
-        },
-        onLoad: function onLoad(tab) {
-            /* init tab */
-            updateListOnTab();
-
-            if (ss.storage.currentBoard !== undefined) {
-                loadBoard(ss.storage.currentBoard);
-            }
-            /* init tab end */
-        },
-        onClose: function onClose(tab) {
-            _button.checked = false;
-            _tab = _worker = undefined;
-        }
+        onOpen,
+        onReady,
+        onLoad,
+        onClose 
     });
 }
 
@@ -224,8 +200,8 @@ function loadBoard(idx) {
         ss.storage.currentBoard = idx;
         _worker.port.emit('board:restore', board);
         _worker.port.on('board:restored', function() {
-            console.log('The board has been restored. AddNewPictures to it .....');
-                ss.storage.boards[ss.storage.currentBoard].addNewPictures();
+            console.log('The board ' + ss.storage.currentBoard + ' has been restored. AddNewPictures to it .....');
+            ss.storage.boards[ss.storage.currentBoard].addNewPictures();
         });
         _tab.title = 'Moodboard: ' + board.name;
 }
@@ -251,6 +227,45 @@ _cmenu = cm.Menu({
     }
 });
 
+function checkTab() {
+    if (this.url.indexOf('resource://moodboards-addon') > -1) {
+        _tab = this;
+        _button.checked = true;
+        onReady(_tab);
+        onLoad(_tab);
+        onOpen(_tab);
+        _tab.onOpen = onOpen;
+        _tab.onClose = onClose;
+    }
+}
+
+function initializeAddon() {
+
+    require("sdk/system/unload").when(function(reason) {
+        if (reason === 'uninstall' || reason === 'disable') {
+            if (_worker) {
+                _worker.destroy();
+            }
+            if (_tab) {
+                _tab.close();
+            }
+        }
+    });
+
+
+    ss.storage.boards = ss.storage.boards || [];
+
+    for (let tab of tabs) {
+        if (tab.readyState === 'interactive' || tab.readyState === 'complete') {
+            checkTab(tab);
+        } else {
+            tab.on('ready', checkTab.bind(tab)); 
+        }
+    }
+
+    buildMenu();
+}
+
 /* the button for the Firefox toolbar */
 _button = buttons.ToggleButton({
     id: 'moodboards-addon',
@@ -267,19 +282,17 @@ _button = buttons.ToggleButton({
 
         // now that the state hierarchy is clean, set the global state
         this.checked = !this.checked;
-
         if (this.checked) {
-            if (_tab)
+            if (_tab) {
                 _tab.activate();
-            else
+            } else {
                 createNewTab();
-        }
-        else {
+            }
+        } else if (_tab) {
             _tab.close();
         }
     }
 });
 
 /* init add-on */
-ss.storage.boards = ss.storage.boards || [];
-buildMenu();
+initializeAddon();

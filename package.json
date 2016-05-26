@@ -1,16 +1,15 @@
 {
   "title": "Quick moodboards addon",
   "name": "moodboards-addon",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Quick moodboards Firefox add-on",
   "main": "index.js",
   "author": "Carles Escrig Royo",
   "engines": {
-    "firefox": ">=38.0",
-    "fennec": ">=38.0"
+    "firefox": ">=38.0"
   },
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
-    "addon-httpd": "0.0.3"
+    "addon-httpd": "git://github.com/esroyo/addon-httpd.git"
   }
 }
