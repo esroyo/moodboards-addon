@@ -6,14 +6,14 @@ Make moodboards quickly by collecting images through the Firefox contextual menu
 ## Usage
 The addon adds new icon in the toolbar which gives acces to the Moodboards tab.
 
-To add images to a moodboard, you'll find an option in the right click contextual menu (similar to "Save image as...") called "Add Image to moodboard". Please note that currently only images from an `img` tag can can be pinned (not backgrounds). To be able to pin, you should also see the "Save image as..." option in the menu.
+To add images to a moodboard, you'll find an option in the right click contextual menu (similar to "Save image as...") called "Add Image to moodboard".
 
 The creation of moodboards is handled from that same contextual menu.
 
 The moodboard editor is quite limited, just click an image to bring it to the front and press `delete` key while it is selected to remove it.
 
 ## Install
-* [Firefox extension package](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.1.0-fx.xpi)
+* [Firefox extension package](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.2.0-fx.xpi)
 
 ## Build from source
 Requires: `bower`, `npm` and `jpm`.

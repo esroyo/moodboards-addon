@@ -14,7 +14,7 @@ const ss = require('sdk/simple-storage');
 const { Cc, Ci, Cu } = require('chrome');
 
 require('proxy-server');
-var _button, _cmenu,
+var _button, _cmenu, _cmenuparent,
     _tab, _worker,
     _locked = false;
     defaultTitle = 'My moodboards';
@@ -47,10 +47,20 @@ Board.prototype.addNewPictures = function() {
     }
 };
 
+function showMenu() {
+    _cmenuparent.addItem(_cmenu);
+    buildMenu();
+}
+
+function hideMenu() {
+    _cmenuparent.removeItem(_cmenu);
+}
+
 function buildMenu() {
     _cmenu.items.forEach(function(item) {
         _cmenu.removeItem(item);
     });
+
     ss.storage.boards.forEach(function(board, idx) {
         _cmenu.addItem(
             cm.Item({
@@ -206,16 +216,37 @@ function loadBoard(idx) {
         _tab.title = 'Moodboard: ' + board.name;
 }
 
+var clickedImage;
+var pageMod = require("sdk/page-mod");
+
+pageMod.PageMod({
+    include: "*",
+    contentScriptWhen: 'ready',
+    contentScriptFile: './handle-pagemod.js',
+    onAttach: function (worker) {
+        worker.port.on('contextmenu', function (src) {
+            if (!clickedImage && src) {
+                showMenu();
+            } else if (clickedImage && !src) {
+                hideMenu();
+            }
+            clickedImage = src;
+        });
+    }
+});
+
 _cmenu = cm.Menu({
     label: 'Add Image to moodboard',
     image: require("sdk/self").data.url('assets/img/pin-16.png'),
-    context: cm.SelectorContext('img'),
     contentScriptFile: './handle-cm.js',
     onMessage: function(msg) {
         if (msg.name) { // new moodboard
             msg.idx = ss.storage.boards.push(new Board(msg.name)) - 1;
             buildMenu();
             updateListOnTab();
+        }
+        if (!msg.src) {
+            msg.src = clickedImage;
         }
         var imgIdx = ss.storage.boards[msg.idx].pictures.push(new Picture(msg)) - 1;
         if (_tab && ss.storage.currentBoard === msg.idx) {
@@ -226,6 +257,7 @@ _cmenu = cm.Menu({
         }
     }
 });
+_cmenuparent = _cmenu.parentMenu;
 
 function checkTab() {
     if (this.url.indexOf('resource://moodboards-addon') > -1) {
