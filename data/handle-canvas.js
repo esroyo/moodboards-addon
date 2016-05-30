@@ -1,6 +1,7 @@
 jQuery(document).ready(function($) {
-    //var crossOriginService = 'http://crossorigin.me/';
-    var crossOriginService = 'http://localhost:1338/proxy/';
+    const _config = {
+        crossOriginService: 'http://crossorigin.me/'
+    };
     var $body = $('body');
 
     if (!$body.hasClass('moodboards'))
@@ -56,6 +57,12 @@ jQuery(document).ready(function($) {
         canvas.clear();
     }
 
+    self.port.on('config:change', function(options) {
+        for (let option of Object.keys(options)) {
+            _config[option] = options[option];
+        }
+    });
+
     self.port.on('list:restore', function(boards) {
 
         if (!boards.length) return;
@@ -92,8 +99,9 @@ jQuery(document).ready(function($) {
     });
 
     self.port.on('picture:add', function(pic) {
-        fabric.Image.fromURL(crossOriginService + pic.src, function(img) {
+        fabric.Image.fromURL(_config.crossOriginService + pic.src, function(img) {
             canvas.add(img);
+            self.port.emit('picture:added', pic);
         }, {crossOrigin:'anonymous'});
     });
 

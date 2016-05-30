@@ -20,21 +20,31 @@ function getSrc(e) {
     }
 }
 
-function findSrc(e) {
+function hasParent(e) {
+    return e.parentNode && e.nodeName !== 'HTML';
+}
+
+function findSrc(e, backward = 2) {
     let src = getSrc(e);
 
     if (src) {
         return src;
     }
 
-    for (let child of e.children) {
-        src = findSrc(child);
+    // search in children
+    let current = e;
+    while (backward && hasParent(current)) {
+        current = current.parentNode;
+        backward -= 1;
+    }
+    for (let child of current.children) {
+        src = findSrc(child, 0);
         if (src) {
             return src;
         }
     }
 
-    let current = e;
+    // search in the ancestors
     while (current.parentNode && current.nodeName !== 'HTML') {
         current = current.parentNode;
         src = getSrc(current);

@@ -13,10 +13,16 @@ const cm = require('sdk/context-menu');
 const ss = require('sdk/simple-storage');
 const { Cc, Ci, Cu } = require('chrome');
 
-require('proxy-server');
-var _button, _cmenu, _cmenuparent,
-    _tab, _worker,
-    _locked = false;
+const { proxyUrl } = require('proxy-server');
+
+var _button,
+    _cmenu,
+    _cmenuparent,
+    _cmenushown = false,
+    _tab,
+    _worker,
+    _locked = false,
+    _src,
     defaultTitle = 'My moodboards';
 
 function Picture(prop) {
@@ -36,7 +42,6 @@ Board.prototype.addNewPictures = function() {
         _locked = true;
         this.pictures.forEach(function(pic, idx) {
             if (!pic.onCanvas) {
-                pic.onCanvas = true;
                 _worker.port.emit('picture:add', {
                     src: pic.src,
                     idx: idx
@@ -48,11 +53,13 @@ Board.prototype.addNewPictures = function() {
 };
 
 function showMenu() {
+    _cmenushown = true;
     _cmenuparent.addItem(_cmenu);
     buildMenu();
 }
 
 function hideMenu() {
+    _cmenushown = false;
     _cmenuparent.removeItem(_cmenu);
 }
 
@@ -109,6 +116,11 @@ function onReady(tab) {
 
     /* tab event */
     _worker.port.on('board:load', loadBoard);
+
+    _worker.port.on('board:restored', function() {
+        console.log('The board ' + ss.storage.currentBoard + ' has been restored. AddNewPictures to it .....');
+        Board.prototype.addNewPictures.call(ss.storage.boards[ss.storage.currentBoard]);
+    });
 
     _worker.port.on('board:store', function(json) {
         if (ss.storage.currentBoard !== undefined) {
@@ -173,6 +185,12 @@ function onReady(tab) {
             _tab.title = defaultTitle;
         }
     });
+
+    _worker.port.on('picture:added', function(pic) {
+        ss.storage.boards[ss.storage.currentBoard].pictures[pic.idx].onCanvas = true;
+    });
+
+    _worker.port.emit('config:change', { crossOriginService: proxyUrl });
 }
 
 function onLoad(tab) {
@@ -202,21 +220,18 @@ function createNewTab() {
 }
 
 function loadBoard(idx) {
-        ss.storage.currentBoard = undefined;
         console.log('Loading board with idx ' + idx);
         var board = ss.storage.boards[idx];
-        if (!board) return;
+        if (!board) {
+            ss.storage.currentBoard = undefined;
+            return;
+        }
 
         ss.storage.currentBoard = idx;
         _worker.port.emit('board:restore', board);
-        _worker.port.on('board:restored', function() {
-            console.log('The board ' + ss.storage.currentBoard + ' has been restored. AddNewPictures to it .....');
-            ss.storage.boards[ss.storage.currentBoard].addNewPictures();
-        });
         _tab.title = 'Moodboard: ' + board.name;
 }
 
-var clickedImage;
 var pageMod = require("sdk/page-mod");
 
 pageMod.PageMod({
@@ -225,12 +240,14 @@ pageMod.PageMod({
     contentScriptFile: './handle-pagemod.js',
     onAttach: function (worker) {
         worker.port.on('contextmenu', function (src) {
-            if (!clickedImage && src) {
+            if (!_cmenushown && src) {
                 showMenu();
-            } else if (clickedImage && !src) {
+            }
+            if (_cmenushown && !src) {
                 hideMenu();
             }
-            clickedImage = src;
+            _src = src;
+            console.log('page-mod signaled \'contextmenu\' ' + _src);
         });
     }
 });
@@ -239,28 +256,39 @@ _cmenu = cm.Menu({
     label: 'Add Image to moodboard',
     image: require("sdk/self").data.url('assets/img/pin-16.png'),
     contentScriptFile: './handle-cm.js',
+    context: cm.PredicateContext(function(info) {
+        return info.documentURL.indexOf('http') === 0;
+    }),
     onMessage: function(msg) {
         if (msg.name) { // new moodboard
             msg.idx = ss.storage.boards.push(new Board(msg.name)) - 1;
             buildMenu();
             updateListOnTab();
         }
-        if (!msg.src) {
-            msg.src = clickedImage;
+        msg.src = msg.src || _src;
+        if (msg.src) {
+            console.log('Received img src: ' + msg.src + ' from context menu');
+            var imgIdx = ss.storage.boards[msg.idx].pictures.push(new Picture(msg)) - 1;
+        } else {
+            console.log('Received empty img src from context menu [!]');
+            return;
         }
-        var imgIdx = ss.storage.boards[msg.idx].pictures.push(new Picture(msg)) - 1;
         if (_tab && ss.storage.currentBoard === msg.idx) {
             // LOOK HERE
             console.log('The moodboards tab is open and shows board with idx' + msg.idx);
-            ss.storage.boards[msg.idx].pictures[imgIdx].onCanvas = true;
             _worker.port.emit('picture:add', {src: msg.src, idx: imgIdx});
         }
     }
 });
 _cmenuparent = _cmenu.parentMenu;
 
+function isAddonTab(tab) {
+    const target = tab || this;
+    return target.url.indexOf('resource://moodboards-addon') > -1;
+}
+
 function checkTab() {
-    if (this.url.indexOf('resource://moodboards-addon') > -1) {
+    if (isAddonTab(this.url)) {
         _tab = this;
         _button.checked = true;
         onReady(_tab);

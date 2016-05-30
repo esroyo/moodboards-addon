@@ -27,12 +27,15 @@ function getPort() {
     return free ? port : null;
 }
 
+const port = getPort();
+const route = '/proxy/';
+
 const srv = startServerAsync(
-    getPort(),
+    port,
     require('sdk/system').pathFor('TmpD')
 );
 
-srv.registerPrefixHandler('/proxy/', function(request, response) {
+srv.registerPrefixHandler(route, function(request, response) {
   response.processAsync();
   Request({
       url: request._path.slice(7),
@@ -59,3 +62,4 @@ require("sdk/system/unload").when(function cleanup() {
 });
 
 exports.server = srv;
+exports.proxyUrl = 'http://localhost:' + port + route;
