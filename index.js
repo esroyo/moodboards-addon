@@ -288,7 +288,7 @@ function isAddonTab(tab) {
 }
 
 function checkTab() {
-    if (isAddonTab(this.url)) {
+    if (isAddonTab(this)) {
         _tab = this;
         _button.checked = true;
         onReady(_tab);

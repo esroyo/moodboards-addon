@@ -13,7 +13,7 @@ The creation of moodboards is handled from that same contextual menu.
 The moodboard editor is quite limited, just click an image to bring it to the front and press `delete` key while it is selected to remove it.
 
 ## Install
-* [Firefox extension package](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.2.1-fx.xpi)
+* [Firefox extension package](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.2.2-fx.xpi)
 
 ## Build from source
 Requires: `bower`, `npm` and `jpm`.
