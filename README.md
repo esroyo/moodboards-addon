@@ -11,18 +11,3 @@ To add images to a moodboard, you'll find an option in the right click contextua
 The creation of moodboards is handled from that same contextual menu.
 
 The moodboard editor is quite limited, just click an image to bring it to the front and press `delete` key while it is selected to remove it.
-
-## Install
-* [Firefox extension package](https://esroyo.github.io/moodboards-addon/files/addon/versions/moodboards-addon-0.2.2-fx.xpi)
-
-## Build from source
-Requires: `bower`, `npm` and `jpm`.
-
-1. `git clone --depth 1 https://github.com/esroyo/moodboards-addon.git`
-2. `cd moodboards-addon`
-2. `bower install`
-3. `npm install`
-4. `jpm run` or `jpm run -b /path/to/your/firefox`
-
-## Resources
-* [Getting started with JPM](https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Getting_Started_%28jpm%29)

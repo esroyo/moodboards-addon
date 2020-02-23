@@ -1,0 +1,47 @@
+{
+    "manifest_version": 2,
+    "name": "Quick moodboards",
+    "description": "Make moodboards quickly by collecting images through the browser contextual menu",
+    "author": "Carles Escrig i Royo <esroyo@gmail.com>, Carmela Fores Tomas",
+    "version": "0.3.0",
+    "icons": {
+        "16": "assets/img/moodboard-16.png",
+        "32": "assets/img/moodboard-32.png",
+        "64": "assets/img/moodboard-64.png"
+    },
+    "background": {
+        "scripts": [
+            "src/background/browser_action.js",
+            "src/background/menus.js",
+            "src/background/storage.js",
+            "src/background/index.js"
+        ]
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
+    "content_scripts": [
+        {
+            "all_frames": true,
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "src/content/index.js"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "browser_action": {
+        "default_icon": {
+            "32": "assets/img/moodboard-32.png",
+            "64": "assets/img/moodboard-64.png"
+        },
+        "default_title": "Quick moodboards"
+    },
+    "permissions": [
+        "*://*/*",
+        "downloads",
+        "menus",
+        "tabs",
+        "storage"
+    ]
+}

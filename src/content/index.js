@@ -54,7 +54,32 @@ function findSrc(e, backward = 2) {
     }
 }
 
-window.addEventListener('contextmenu', function(e) {
-    self.port.emit('contextmenu', findSrc(e.target));
-}, true);
+function addImage({ boardId, src, targetElementId }) {
 
+    if (!src) {
+        // If not "src" given by context click info
+        // then we need to search the element where click originated
+        const elem = browser.menus.getTargetElement(targetElementId);
+        src = elem && findSrc(elem);
+    }
+
+    return browser.storage.local.get({ boards: [] }).then(function ({ boards }) {
+
+        // Create a new board
+        if (boardId === undefined) {
+
+            let name;
+            while (!name) {
+                name = prompt('Please enter the name for the new moodboard', '').trim();
+            }
+            boardId = boards.push({ name, pictures: [] }) - 1;
+        }
+
+        // Add the picture
+        if (src) {
+            boards[boardId].pictures.push({ src, onCanvas: false });
+        }
+        
+        return browser.storage.local.set({ boards });
+    });
+}

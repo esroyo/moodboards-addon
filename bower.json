@@ -1,7 +1,7 @@
 {
   "name": "moodboards-addon",
   "main": "index.js",
-  "version": "0.0.3",
+  "version": "0.3.0",
   "authors": [
     "Carles Escrig Royo <esroyo@gmail.com>"
   ],
@@ -12,7 +12,7 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "data/lib",
+    "vendor",
     "test",
     "tests"
   ],
