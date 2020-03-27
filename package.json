@@ -1,0 +1,25 @@
+{
+  "name": "quick-moodboards",
+  "version": "0.3.2",
+  "description": "Make moodboards quickly by collecting images through the browser contextual menu",
+  "main": "src/background/index.js",
+  "dependencies": {
+    "fabric": "^3.6.3",
+    "foundation-sites": "^5.5.3",
+    "webextension-polyfill": "^0.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esroyo/moodboards-addon.git"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/esroyo/moodboards-addon/issues"
+  },
+  "homepage": "https://github.com/esroyo/moodboards-addon#readme"
+}

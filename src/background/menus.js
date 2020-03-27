@@ -2,6 +2,8 @@ const updateMenu = (function () {
 
     let rootId;
     const otherIds = [];
+    const documentUrlPatterns = ['http://*/*', 'https://*/*'];
+    const contexts = ['all'];
 
     function onclick(info, tab) {
         const boardId = info.menuItemId === 'add-new'
@@ -16,23 +18,26 @@ const updateMenu = (function () {
     return function updateMenu() {
 
         if (!rootId) {
-            rootId = browser.menus.create({
+            rootId = browser.contextMenus.create({
                 id: 'main',
                 title: 'Add Image to moodboard',
-                documentUrlPatterns: ['http://*/*', 'https://*/*'],
-                contexts: ['all'],
+                documentUrlPatterns,
+                contexts,
             });
         }
 
         while (otherIds.length) {
-            browser.menus.remove(otherIds.pop());
+            browser.contextMenus.remove(otherIds.pop());
         }
 
-        browser.storage.local.get({ boards: [] }).then(function ({ boards }) {
+        browser.storage.local.get(['boards']).then(function (result) {
+            const { boards = [] } = result;
             boards.forEach(function ({ name }, id) {
-                otherIds.push(browser.menus.create({
+                otherIds.push(browser.contextMenus.create({
                     id: `add-${id}`,
                     title: `Add to "${name}"`,
+                    documentUrlPatterns,
+                    contexts,
                     parentId: rootId,
                     // icons: {
                     //     16: 'assets/img/pin.svg',
@@ -41,14 +46,18 @@ const updateMenu = (function () {
                 }));
             });
         }).then(function () {
-            otherIds.push(browser.menus.create({
+            otherIds.push(browser.contextMenus.create({
                 id: `ruler`,
                 type: 'separator',
+                documentUrlPatterns,
+                contexts,
                 parentId: rootId,
             }));
-            otherIds.push(browser.menus.create({
+            otherIds.push(browser.contextMenus.create({
                 id: 'add-new',
                 title: 'Add to a new moodboard',
+                documentUrlPatterns,
+                contexts,
                 parentId: rootId,
                 onclick,
             }));

@@ -1,3 +1,9 @@
+let clickedElement;
+
+document.addEventListener('mousedown', function (event) {
+  clickedElement = event.target;
+}, true);
+
 function getSrc(e) {
 
     // img
@@ -59,18 +65,21 @@ function addImage({ boardId, src, targetElementId }) {
     if (!src) {
         // If not "src" given by context click info
         // then we need to search the element where click originated
-        const elem = browser.menus.getTargetElement(targetElementId);
+        const elem = (targetElementId && browser.contextMenus.getTargetElement(targetElementId))
+            || clickedElement;
         src = elem && findSrc(elem);
     }
 
-    return browser.storage.local.get({ boards: [] }).then(function ({ boards }) {
+    return browser.storage.local.get(['boards']).then(function (result) {
+
+        const { boards = [] } = result;
 
         // Create a new board
         if (boardId === undefined) {
 
             let name;
             while (!name) {
-                name = prompt('Please enter the name for the new moodboard', '').trim();
+                name = (prompt('Please enter the name for the new moodboard', '') || '').trim();
             }
             boardId = boards.push({ name, pictures: [] }) - 1;
         }
@@ -79,7 +88,7 @@ function addImage({ boardId, src, targetElementId }) {
         if (src) {
             boards[boardId].pictures.push({ src, onCanvas: false });
         }
-        
+
         return browser.storage.local.set({ boards });
     });
 }

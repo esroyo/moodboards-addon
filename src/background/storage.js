@@ -24,8 +24,9 @@ function onStorageChange(changes, area) {
 
     // Change in the amount of pictures (only in the addon page)
     if (env === 'PAGE') {
-        browser.storage.local.get({ currentBoard: undefined })
-            .then(function ({ currentBoard }) {
+        browser.storage.local.get(['currentBoard'])
+            .then(function (result) {
+                const { currentBoard } = result;
                 if (currentBoard === undefined) {
                     return
                 }

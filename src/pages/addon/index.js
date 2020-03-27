@@ -114,8 +114,8 @@ jQuery(document).ready(function($) {
 
         canvas.clear();
 
-        return browser.storage.local.get({ boards: [] }).then(function ({ boards }) {
-
+        return browser.storage.local.get(['boards']).then(function (results) {
+            const { boards = [] } = results;
             const currentBoard = boards[id] ? id : undefined;
             return browser.storage.local.set({ currentBoard }).then(() => boards);
 
@@ -152,8 +152,10 @@ jQuery(document).ready(function($) {
 
     updateMenu = function updateMenu() {
 
-        browser.storage.local.get({ boards: [], currentBoard: undefined })
-            .then(function ({ boards, currentBoard }) {
+        browser.storage.local.get(['boards', 'currentBoard'])
+            .then(function (results) {
+
+                const { boards = [], currentBoard } = results;
 
                 $list.empty();
 
@@ -181,8 +183,9 @@ jQuery(document).ready(function($) {
     $(window).resize(Foundation.utils.throttle(respondCanvas, resizeTimeout));
 
     canvas.on('after:render', Foundation.utils.debounce(function () {
-        return browser.storage.local.get({ boards: [], currentBoard: undefined })
-            .then(function ({ boards, currentBoard }) {
+        return browser.storage.local.get(['boards', 'currentBoard'])
+            .then(function (results) {
+                const { boards = [], currentBoard } = results;
                 if (currentBoard !== undefined) {
                     boards[currentBoard].json = JSON.stringify(canvas.toJSON());
                     return browser.storage.local.set({ boards });
@@ -201,11 +204,11 @@ jQuery(document).ready(function($) {
 
     $body.keyup(function(e) {
         if (e.keyCode == 46) { //delete
-            if(canvas.getActiveGroup()){
-                canvas.getActiveGroup().forEachObject(function(o){ canvas.remove(o) });
-                canvas.discardActiveGroup().renderAll();
-            } else {
-                canvas.remove(canvas.getActiveObject());
+            if(canvas.getActiveObjects()){
+                canvas.getActiveObjects().forEach(function (o) {
+                    canvas.remove(o);
+                });
+                canvas.discardActiveObject().renderAll();
             }
         }
     });
@@ -261,8 +264,9 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        browser.storage.local.get({ boards: [], currentBoard: undefined })
-            .then(function ({ boards, currentBoard }) {
+        browser.storage.local.get(['boards', 'currentBoard'])
+            .then(function (results) {
+                let { boards = [], currentBoard } = results;
                 if (currentBoard === undefined) {
                     $remove.prop('disabled', false);
                     throw new Error('No board selected as currentBoard');
@@ -303,8 +307,9 @@ jQuery(document).ready(function($) {
             return false;
         }
 
-        browser.storage.local.get({ boards: [], currentBoard: undefined })
-            .then(function ({ boards, currentBoard }) {
+        browser.storage.local.get(['boards', 'currentBoard'])
+            .then(function (results) {
+                const { boards = [], currentBoard } = results;
                 if (currentBoard === undefined) {
                     $save.prop('disabled', false);
                     throw new Error('No board selected as currentBoard');
@@ -322,8 +327,9 @@ jQuery(document).ready(function($) {
     /* initial calls */
     updateMenu();
     respondCanvas();
-    browser.storage.local.get({ boards: [], currentBoard: undefined })
-        .then(function ({ boards, currentBoard }) {
+    browser.storage.local.get(['boards', 'currentBoard'])
+        .then(function (results) {
+            const { boards = [], currentBoard } = results;
             if (currentBoard !== undefined) {
                 return loadBoard(currentBoard);
             } else if (boards.length) {

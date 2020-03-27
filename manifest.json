@@ -3,7 +3,7 @@
     "name": "Quick moodboards",
     "description": "Make moodboards quickly by collecting images through the browser contextual menu",
     "author": "Carles Escrig i Royo <esroyo@gmail.com>, Carmela Fores Tomas",
-    "version": "0.3.2",
+    "version": "0.3.4",
     "browser_specific_settings": {
         "gecko": {
             "id": "moodboards-addon@comparteix.net",
@@ -17,6 +17,7 @@
     },
     "background": {
         "scripts": [
+            "vendor/webextension-polyfill/dist/browser-polyfill.min.js",
             "src/background/browser_action.js",
             "src/background/menus.js",
             "src/background/storage.js",
@@ -31,6 +32,7 @@
                 "*://*/*"
             ],
             "js": [
+                "vendor/webextension-polyfill/dist/browser-polyfill.min.js",
                 "src/content/index.js"
             ],
             "run_at": "document_end"
@@ -46,7 +48,7 @@
     "permissions": [
         "*://*/*",
         "downloads",
-        "menus",
+        "contextMenus",
         "tabs",
         "storage"
     ]
