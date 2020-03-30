@@ -2,8 +2,8 @@
     "manifest_version": 2,
     "name": "Quick moodboards",
     "description": "Make moodboards quickly by collecting images through the browser contextual menu",
-    "author": "Carles Escrig i Royo <esroyo@gmail.com>, Carmela Fores Tomas",
-    "version": "0.3.4",
+    "author": "Carmela Fores, Carles Escrig <esroyo@gmail.com>",
+    "version": "0.3.6",
     "browser_specific_settings": {
         "gecko": {
             "id": "moodboards-addon@comparteix.net",

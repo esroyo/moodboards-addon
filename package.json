@@ -1,6 +1,6 @@
 {
   "name": "quick-moodboards",
-  "version": "0.3.2",
+  "version": "0.3.6",
   "description": "Make moodboards quickly by collecting images through the browser contextual menu",
   "main": "src/background/index.js",
   "dependencies": {

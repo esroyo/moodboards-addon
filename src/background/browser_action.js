@@ -1,13 +1,13 @@
 browser.browserAction.onClicked.addListener(function () {
 
     browser.tabs.query({
-        url: browser.runtime.getURL('/src/pages/addon/index.html'),
+        url: browser.runtime.getURL('/src/pages/dashboard/index.html'),
     })
     .then(function ([tab]) {
         if (!tab) {
             // If no addon tab present: open
             browser.tabs.create({
-                url: '/src/pages/addon/index.html',
+                url: '/src/pages/dashboard/index.html',
             });
         } else if (tab.active) {
             // If the addon tab is currently active: highlight
