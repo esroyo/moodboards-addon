@@ -1,3 +1,6 @@
+Premanently moved to ➡ https://git.sr.ht/~esroyo/quick-moodboards
+
+
 # Quick moodboads extension
 
 Make moodboards quickly by collecting images through the browser contextual menu.
